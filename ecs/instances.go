@@ -217,6 +217,15 @@ type EipAddressAssociateType struct {
 	InternetChargeType common.InternetChargeType
 }
 
+//
+// https://help.aliyun.com/document_detail/58510.html
+// NetworkInterfaceType is defined in eni.go and used by DescribeNetworkInterfaces so this type if prefixed with Instance
+type InstanceNetworkInterfaceType struct {
+	NetworkInterfaceId string
+	PrimaryIpAddress   string
+	MacAddress         string
+}
+
 // Experimental feature
 type SpotStrategyType string
 
@@ -263,9 +272,12 @@ type InstanceAttributesType struct {
 	Tags                    struct {
 		Tag []TagItemType
 	}
-	SpotStrategy   SpotStrategyType
-	SpotPriceLimit float64
-	KeyPairName    string
+	SpotStrategy      SpotStrategyType
+	SpotPriceLimit    float64
+	KeyPairName       string
+	NetworkInterfaces struct {
+		NetworkInterface []InstanceNetworkInterfaceType
+	}
 }
 
 type DescribeInstanceAttributeResponse struct {
