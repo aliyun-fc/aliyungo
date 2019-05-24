@@ -306,9 +306,16 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 		log.Println(string(prettyJSON.Bytes()))
 	}
 
+	dumpResp := func() string {
+		return fmt.Sprintf("status: %d, headers: %v, body: %s", statusCode, httpResp.Header, string(body))
+	}
+
 	if statusCode >= 400 && statusCode <= 599 {
 		errorResponse := ErrorResponse{}
 		err = json.Unmarshal(body, &errorResponse)
+		if err != nil {
+			return GetClientError(fmt.Errorf("Unmarshal error: %v, resp: %s", err, dumpResp()))
+		}
 		ecsError := &Error{
 			ErrorResponse: errorResponse,
 			StatusCode:    statusCode,
@@ -319,7 +326,7 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 	err = json.Unmarshal(body, response)
 	//log.Printf("%++v", response)
 	if err != nil {
-		return GetClientError(err)
+		return GetClientError(fmt.Errorf("Unmarshal error: %v, resp: %s", err, dumpResp()))
 	}
 
 	return nil
