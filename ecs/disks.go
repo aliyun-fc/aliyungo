@@ -311,6 +311,7 @@ type ReplaceSystemDiskArgs struct {
 	InstanceId  string
 	ImageId     string
 	SystemDisk  SystemDiskType
+	Password    string
 	ClientToken string
 }
 

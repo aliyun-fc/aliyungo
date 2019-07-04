@@ -25,6 +25,9 @@ type FlattenArray []string
 // SystemDisk_Category => SystemDisk.Category
 type UnderlineString string
 
+// HTTPDoHook defines the type of hook
+type HTTPDoHook func(fn func(req *http.Request) (*http.Response, error)) func(req *http.Request) (*http.Response, error)
+
 // A Client represents a client of ECS services
 type Client struct {
 	AccessKeyId     string //Access Key Id
@@ -38,7 +41,14 @@ type Client struct {
 	regionID        Region
 	businessInfo    string
 	userAgent       string
+	doHook          HTTPDoHook
 }
+
+var (
+	defaultHTTPDoHook HTTPDoHook = func(fn func(req *http.Request) (*http.Response, error)) func(req *http.Request) (*http.Response, error) {
+		return fn
+	}
+)
 
 // Initialize properties of a client instance
 func (client *Client) Init(endpoint, version, accessKeyId, accessKeySecret string) {
@@ -62,6 +72,7 @@ func (client *Client) Init(endpoint, version, accessKeyId, accessKeySecret strin
 	}
 	client.endpoint = endpoint
 	client.version = version
+	client.doHook = defaultHTTPDoHook
 }
 
 // Initialize properties of a client instance including regionID
@@ -194,6 +205,12 @@ func (client *Client) WithUserAgent(userAgent string) *Client {
 	return client
 }
 
+// WithHTTPDoHook sets httpDoHook
+func (client *Client) WithHTTPDoHook(hook HTTPDoHook) *Client {
+	client.SetHTTPDoHook(hook)
+	return client
+}
+
 // ----------------------------------------------------
 // SetXXX methods
 // ----------------------------------------------------
@@ -252,6 +269,14 @@ func (client *Client) SetSecurityToken(securityToken string) {
 	client.securityToken = securityToken
 }
 
+// SetHTTPDoHook ...
+func (client *Client) SetHTTPDoHook(hook HTTPDoHook) {
+	if hook == nil {
+		panic("hook cannot be nil")
+	}
+	client.doHook = hook
+}
+
 // Invoke sends the raw HTTP request for ECS services
 func (client *Client) Invoke(action string, args interface{}, response interface{}) error {
 	if err := client.ensureProperties(); err != nil {
@@ -282,7 +307,7 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 	httpReq.Header.Set("User-Agent", httpReq.UserAgent()+" "+client.userAgent)
 
 	t0 := time.Now()
-	httpResp, err := client.httpClient.Do(httpReq)
+	httpResp, err := client.doHook(client.httpClient.Do)(httpReq)
 	t1 := time.Now()
 	if err != nil {
 		return GetClientError(err)
@@ -363,7 +388,7 @@ func (client *Client) InvokeByFlattenMethod(action string, args interface{}, res
 	httpReq.Header.Set("User-Agent", httpReq.UserAgent()+" "+client.userAgent)
 
 	t0 := time.Now()
-	httpResp, err := client.httpClient.Do(httpReq)
+	httpResp, err := client.doHook(client.httpClient.Do)(httpReq)
 	t1 := time.Now()
 	if err != nil {
 		return GetClientError(err)
@@ -447,7 +472,7 @@ func (client *Client) InvokeByAnyMethod(method, action, path string, args interf
 	httpReq.Header.Set("User-Agent", httpReq.Header.Get("User-Agent")+" "+client.userAgent)
 
 	t0 := time.Now()
-	httpResp, err := client.httpClient.Do(httpReq)
+	httpResp, err := client.doHook(client.httpClient.Do)(httpReq)
 	t1 := time.Now()
 	if err != nil {
 		return GetClientError(err)
