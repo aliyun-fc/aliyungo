@@ -610,7 +610,7 @@ func (client *Client) CreateInstance(args *CreateInstanceArgs) (instanceId strin
 type RunInstanceArgs struct {
 	CreateInstanceArgs
 	MinAmount       int
-	MaxAmount       int
+	Amount          int
 	AutoReleaseTime string
 	NetworkType     string
 	InnerIpAddress  string
