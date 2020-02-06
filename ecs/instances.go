@@ -581,6 +581,7 @@ type CreateInstanceArgs struct {
 	AutoRenewPeriod             int
 	SpotStrategy                SpotStrategyType
 	SpotPriceLimit              float64
+	SpotDuration                int
 	KeyPairName                 string
 	RamRoleName                 string
 	SecurityEnhancementStrategy SecurityEnhancementStrategy
