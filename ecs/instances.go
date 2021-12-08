@@ -224,6 +224,7 @@ type InstanceNetworkInterfaceType struct {
 	NetworkInterfaceId string
 	PrimaryIpAddress   string
 	MacAddress         string
+	Type               string
 }
 
 // Experimental feature
