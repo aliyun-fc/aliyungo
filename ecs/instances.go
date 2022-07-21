@@ -587,6 +587,7 @@ type CreateInstanceArgs struct {
 	KeyPairName                 string
 	RamRoleName                 string
 	SecurityEnhancementStrategy SecurityEnhancementStrategy
+	ResourceGroupId             string
 }
 
 type CreateInstanceResponse struct {
