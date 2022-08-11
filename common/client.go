@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -337,6 +338,17 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 		httpReq.Header.Set("x-acs-resourcegroupid", client.resourceGroupID)
 		httpReq.Header.Set("x-acs-ascm-product", "ecs")
 		httpReq.Header.Set("x-acs-ascm-version", "2014-05-26")
+	}
+
+	if trans, ok := client.httpClient.Transport.(*http.Transport); ok && trans != nil {
+		if trans.TLSClientConfig != nil {
+			trans.TLSClientConfig.InsecureSkipVerify = true
+		} else {
+			trans.TLSClientConfig = &tls.Config{
+				InsecureSkipVerify: true,
+			}
+		}
+		client.httpClient.Transport = trans
 	}
 
 	t0 := time.Now()
