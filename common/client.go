@@ -41,6 +41,8 @@ type Client struct {
 	regionID        Region
 	businessInfo    string
 	userAgent       string
+	resourceGroupID string
+	organizationID string
 	doHook          HTTPDoHook
 }
 
@@ -145,6 +147,18 @@ func (client *Client) ensureProperties() error {
 // WithXXX methods
 // ----------------------------------------------------
 
+// WithOrganizationID sets organizationID
+func (client *Client) WithOrganizationID(organizationID string) *Client {
+	client.SetOrganizationID(organizationID)
+	return client
+}
+
+// WithResourceGroupID sets resourceGroupID
+func (client *Client) WithResourceGroupID(resourceGroupID string) *Client {
+	client.SetResourceGroupID(resourceGroupID)
+	return client
+}
+
 // WithEndpoint sets custom endpoint
 func (client *Client) WithEndpoint(endpoint string) *Client {
 	client.SetEndpoint(endpoint)
@@ -218,6 +232,16 @@ func (client *Client) WithHTTPDoHook(hook HTTPDoHook) *Client {
 // SetEndpoint sets custom endpoint
 func (client *Client) SetEndpoint(endpoint string) {
 	client.endpoint = endpoint
+}
+
+// SetOrganizationID sets organizationID
+func (client *Client) SetOrganizationID(organizationID string) {
+	client.organizationID = organizationID
+}
+
+// SetResourceGroupID sets resourceGroupID
+func (client *Client) SetResourceGroupID(resourceGroupID string) {
+	client.resourceGroupID = resourceGroupID
 }
 
 // SetEndpoint sets custom version
@@ -305,6 +329,13 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 	httpReq.Header.Set("X-SDK-Client", `AliyunGO/`+Version+client.businessInfo)
 
 	httpReq.Header.Set("User-Agent", httpReq.UserAgent()+" "+client.userAgent)
+
+	if len(client.organizationID) > 0 {
+		httpReq.Header.Set("x-acs-organizationid", client.organizationID)
+	}
+	if len(client.resourceGroupID) > 0 {
+		httpReq.Header.Set("x-acs-resourcegroupid", client.resourceGroupID)
+	}
 
 	t0 := time.Now()
 	httpResp, err := client.doHook(client.httpClient.Do)(httpReq)
