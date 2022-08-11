@@ -332,14 +332,10 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 
 	httpReq.Header.Set("User-Agent", httpReq.UserAgent()+" "+client.userAgent)
 
-	if len(client.organizationID) > 0 {
-		httpReq.Header.Set("x-acs-organizationid", client.organizationID)
-	}
-	if len(client.resourceGroupID) > 0 {
-		httpReq.Header.Set("x-acs-resourcegroupid", client.resourceGroupID)
-		httpReq.Header.Set("x-acs-ascm-product", "ecs")
-		httpReq.Header.Set("x-acs-ascm-version", "2014-05-26")
-	}
+	httpReq.Header.Set("x-acs-organizationid", "54")
+	httpReq.Header.Set("x-acs-resourcegroupid", "58")
+	httpReq.Header.Set("x-acs-ascm-product", "Ecs")
+	httpReq.Header.Set("x-acs-ascm-version", "2014-05-26")
 
 	if trans, ok := client.httpClient.Transport.(*http.Transport); ok && trans != nil {
 		if trans.TLSClientConfig != nil {
