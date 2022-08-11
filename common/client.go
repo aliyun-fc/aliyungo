@@ -68,6 +68,7 @@ func (client *Client) Init(endpoint, version, accessKeyId, accessKeySecret strin
 	}
 	if handshakeTimeout == 0 {
 		client.httpClient = &http.Client{}
+		client.httpClient.Transport = &http.Transport{}
 	} else {
 		t := &http.Transport{
 			TLSHandshakeTimeout: time.Duration(handshakeTimeout) * time.Second}
