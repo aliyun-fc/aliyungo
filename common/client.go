@@ -335,6 +335,8 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 	}
 	if len(client.resourceGroupID) > 0 {
 		httpReq.Header.Set("x-acs-resourcegroupid", client.resourceGroupID)
+		httpReq.Header.Set("x-acs-ascm-product", "ecs")
+		httpReq.Header.Set("x-acs-ascm-version", "2014-05-26")
 	}
 
 	t0 := time.Now()
