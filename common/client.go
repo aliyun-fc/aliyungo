@@ -335,7 +335,7 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 	httpReq.Header.Set("x-acs-organizationid", "54")
 	httpReq.Header.Set("x-acs-resourcegroupid", "58")
 	httpReq.Header.Set("x-ascm-product-name", "Ecs")
-	httpReq.Header.Set("x-acs-ascm-version", "2014-05-26")
+	httpReq.Header.Set("x-ascm-product-version", "2014-05-26")
 
 	if trans, ok := client.httpClient.Transport.(*http.Transport); ok && trans != nil {
 		if trans.TLSClientConfig != nil {
