@@ -588,6 +588,12 @@ type CreateInstanceArgs struct {
 	RamRoleName                 string
 	SecurityEnhancementStrategy SecurityEnhancementStrategy
 	ResourceGroupId             string
+	Tag                         []TagType
+}
+
+type TagType struct {
+	Key   string
+	Value string
 }
 
 type CreateInstanceResponse struct {
