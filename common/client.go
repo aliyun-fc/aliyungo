@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -41,6 +42,8 @@ type Client struct {
 	regionID        Region
 	businessInfo    string
 	userAgent       string
+	resourceGroupID string
+	organizationID string
 	doHook          HTTPDoHook
 }
 
@@ -65,6 +68,7 @@ func (client *Client) Init(endpoint, version, accessKeyId, accessKeySecret strin
 	}
 	if handshakeTimeout == 0 {
 		client.httpClient = &http.Client{}
+		client.httpClient.Transport = &http.Transport{}
 	} else {
 		t := &http.Transport{
 			TLSHandshakeTimeout: time.Duration(handshakeTimeout) * time.Second}
@@ -145,6 +149,18 @@ func (client *Client) ensureProperties() error {
 // WithXXX methods
 // ----------------------------------------------------
 
+// WithOrganizationID sets organizationID
+func (client *Client) WithOrganizationID(organizationID string) *Client {
+	client.SetOrganizationID(organizationID)
+	return client
+}
+
+// WithResourceGroupID sets resourceGroupID
+func (client *Client) WithResourceGroupID(resourceGroupID string) *Client {
+	client.SetResourceGroupID(resourceGroupID)
+	return client
+}
+
 // WithEndpoint sets custom endpoint
 func (client *Client) WithEndpoint(endpoint string) *Client {
 	client.SetEndpoint(endpoint)
@@ -218,6 +234,16 @@ func (client *Client) WithHTTPDoHook(hook HTTPDoHook) *Client {
 // SetEndpoint sets custom endpoint
 func (client *Client) SetEndpoint(endpoint string) {
 	client.endpoint = endpoint
+}
+
+// SetOrganizationID sets organizationID
+func (client *Client) SetOrganizationID(organizationID string) {
+	client.organizationID = organizationID
+}
+
+// SetResourceGroupID sets resourceGroupID
+func (client *Client) SetResourceGroupID(resourceGroupID string) {
+	client.resourceGroupID = resourceGroupID
 }
 
 // SetEndpoint sets custom version
@@ -305,6 +331,22 @@ func (client *Client) Invoke(action string, args interface{}, response interface
 	httpReq.Header.Set("X-SDK-Client", `AliyunGO/`+Version+client.businessInfo)
 
 	httpReq.Header.Set("User-Agent", httpReq.UserAgent()+" "+client.userAgent)
+
+	httpReq.Header.Set("x-acs-organizationid", "54")
+	httpReq.Header.Set("x-acs-resourcegroupid", "58")
+	httpReq.Header.Set("x-ascm-product-name", "Ecs")
+	httpReq.Header.Set("x-ascm-product-version", "2014-05-26")
+
+	if trans, ok := client.httpClient.Transport.(*http.Transport); ok && trans != nil {
+		if trans.TLSClientConfig != nil {
+			trans.TLSClientConfig.InsecureSkipVerify = true
+		} else {
+			trans.TLSClientConfig = &tls.Config{
+				InsecureSkipVerify: true,
+			}
+		}
+		client.httpClient.Transport = trans
+	}
 
 	t0 := time.Now()
 	httpResp, err := client.doHook(client.httpClient.Do)(httpReq)
